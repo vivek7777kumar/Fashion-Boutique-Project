@@ -1,0 +1,127 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Garment - Collection Management</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .form-card { background-color: #ffffff; max-width: 600px; margin: 0 auto; padding: 35px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eaeaea; text-align: left; }
+        .form-card h2 { color: #2c3e50; margin-bottom: 25px; font-size: 26px; border-bottom: 2px solid #f2f2f2; padding-bottom: 10px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; color: #2c3e50; margin-bottom: 8px; font-size: 15px; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; color: #333; background-color: #fff; }
+        .checkbox-group { display: flex; gap: 15px; flex-wrap: wrap; padding: 5px 0; }
+        .checkbox-label { display: flex; align-items: center; gap: 6px; font-weight: 500 !important; cursor: pointer; }
+        .submit-btn { background-color: #e74c3c; color: #ffffff; border: none; width: 100%; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 10px; }
+        .submit-btn:hover { background-color: #c0392b; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html">Home</a>
+        <a href="catalog.html">View Catalog</a>
+        <a href="add-garment.html">Add New Garment</a>
+        <a href="customer-interest.html">Customer Orders</a>
+    </nav>
+
+    <div class="container">
+        <div class="form-card">
+            <h2>Add New Garment Item</h2>
+
+            <form id="garmentForm">
+                <div class="form-group">
+                    <label for="itemName">Garment Item Name</label>
+                    <input type="text" id="itemName" class="form-control" placeholder="e.g., Silk Floral Evening Gown" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="fabricType">Fabric Material Type</label>
+                    <select id="fabricType" class="form-control" required>
+                        <option value="">-- Select Material Option --</option>
+                        <option value="100% Premium Cotton">100% Premium Cotton</option>
+                        <option value="Pure Mulberry Silk">Pure Mulberry Silk</option>
+                        <option value="Lightweight Denim">Lightweight Denim</option>
+                        <option value="Breathable Linen Blend">Breathable Linen Blend</option>
+                        <option value="Soft Rayon Fabric">Soft Rayon Fabric</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Available Production Sizes</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="checkbox" name="sizes" value="S"> Small (S)</label>
+                        <label class="checkbox-label"><input type="checkbox" name="sizes" value="M"> Medium (M)</label>
+                        <label class="checkbox-label"><input type="checkbox" name="sizes" value="L"> Large (L)</label>
+                        <label class="checkbox-label"><input type="checkbox" name="sizes" value="XL"> Extra Large (XL)</label>
+                    </div>
+                </div>
+
+                <!-- NEW: Photo upload -->
+                <div class="form-group">
+                    <label for="itemImage">Garment Photo (under 1 MB)</label>
+                    <input type="file" id="itemImage" class="form-control" accept="image/*" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="stockQty">Initial Production Quantity (Units)</label>
+                    <input type="number" id="stockQty" class="form-control" min="1" placeholder="e.g., 15" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="itemPrice">Retail Base Price (₹ Rupees)</label>
+                    <input type="number" id="itemPrice" class="form-control" min="0" step="0.01" placeholder="e.g., 49.99" required>
+                </div>
+
+                <button type="submit" class="submit-btn">Save Garment to Collection</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const garmentForm = document.getElementById('garmentForm');
+
+        garmentForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('itemName').value;
+            const fabric = document.getElementById('fabricType').value;
+            const qty = document.getElementById('stockQty').value;
+            const price = document.getElementById('itemPrice').value;
+            const file = document.getElementById('itemImage').files[0];
+
+            let selectedSizes = [];
+            document.querySelectorAll('input[name="sizes"]:checked').forEach(function(box) {
+                selectedSizes.push(box.value);
+            });
+            if (selectedSizes.length === 0) selectedSizes.push('N/A');
+
+            // Convert the photo to text (base64) so it can be saved in localStorage
+            const reader = new FileReader();
+            reader.onload = function() {
+                const newGarment = {
+                    name: name,
+                    fabric: fabric,
+                    sizes: selectedSizes.join(', '),
+                    stock: qty,
+                    price: parseFloat(price).toFixed(2),
+                    image: reader.result
+                };
+
+                try {
+                    let garmentsList = JSON.parse(localStorage.getItem('myGarments')) || [];
+                    garmentsList.push(newGarment);
+                    localStorage.setItem('myGarments', JSON.stringify(garmentsList));
+                    alert('Garment successfully saved!');
+                    window.location.href = 'catalog.html';
+                } catch (e) {
+                    alert('Photo is too large. Please choose a smaller photo.');
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+</body>
+</html>

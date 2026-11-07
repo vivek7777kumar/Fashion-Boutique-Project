@@ -1,0 +1,71 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion Boutique Collection Management</title>
+    <!-- Linking the external stylesheet to format this page -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* background of the whole home page */
+        body {
+            background: linear-gradient(135deg, #2c3e50 0%, #4a3b5c 50%, #e74c3c 100%);
+            background-attachment: fixed;   /* background stays still when scrolling */
+            min-height: 100vh;
+        }
+
+        /* hero box: white see-through glass look */
+        .hero-section {
+            background: rgba(255, 255, 255, 0.92);
+            padding: 70px 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-section h1 { font-size: 44px; }
+
+        /* red line under the title */
+        .hero-section h1::after {
+            content: "";
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: #e74c3c;
+            margin: 15px auto 0;
+            border-radius: 2px;
+        }
+
+        /* make the title and text a bit bigger on the home page */
+        .hero-section p { max-width: 700px; margin: 20px auto 0; }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Navigation Bar: Links all project pages together -->
+    <nav class="navbar">
+        <a href="index.html">Home</a>
+        <a href="catalog.html">View Catalog</a>
+        <a href="add-garment.html">Add New Garment</a>
+        <a href="customer-interest.html">Customer Orders</a>
+    </nav>
+
+    <!-- 2. Main Content Wrapper -->
+    <div class="container">
+
+        <!-- Welcome Hero Banner -->
+        <div class="hero-section">
+            <h1>Fashion Boutique Collection Management</h1>
+            <p>A digital platform designed for boutique owners and fashion designers to efficiently organize garment lines, design sketches, real-time inventory levels, and track customer style preferences.</p>
+
+            <!-- Quick navigation shortcut buttons -->
+            <div class="btn-container">
+                <a href="catalog.html" class="btn btn-primary">👗 View Catalog</a>
+                <a href="add-garment.html" class="btn btn-secondary">➕ Add New Garment</a>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

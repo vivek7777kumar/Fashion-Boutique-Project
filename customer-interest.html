@@ -1,0 +1,140 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Orders</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .orders-header { text-align: left; margin-bottom: 25px; }
+        .orders-header h2 { color: #2c3e50; margin-bottom: 10px; }
+        .order-form, .table-responsive { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,.05); }
+        .order-form { padding: 25px; margin-bottom: 35px; text-align: left; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #2c3e50; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
+        .submit-btn, .reset-btn { padding: 12px 20px; border: none; border-radius: 6px; color: white; cursor: pointer; font-weight: bold; }
+        .submit-btn { background: #e74c3c; width: 100%; }
+        .reset-btn { background: #7f8c8d; margin-bottom: 15px; }
+        .table-responsive { overflow-x: auto; padding: 10px; }
+        .orders-table { width: 100%; border-collapse: collapse; text-align: left; min-width: 700px; }
+        .orders-table th { background: #2c3e50; color: white; padding: 14px; }
+        .orders-table td { padding: 14px; border-bottom: 1px solid #eee; color: #444; }
+        .orders-table tr:nth-child(even) { background: #f9f9f9; }
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; background: #ffeaa7; color: #d63031; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="index.html">Home</a>
+    <a href="catalog.html">View Catalog</a>
+    <a href="add-garment.html">Add New Garment</a>
+    <a href="customer-interest.html">Customer Orders</a>
+</nav>
+
+<div class="container">
+
+    <div class="orders-header">
+        <h2>Customer Orders & Style Interest Log</h2>
+        <p>Enter customer information and manage purchase interests.</p>
+    </div>
+
+    <form class="order-form" id="customerForm">
+        <div class="form-group">
+            <label for="customerName">Customer Name</label>
+            <input type="text" id="customerName" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="contact">Contact Number</label>
+            <input type="tel" id="contact" class="form-control" placeholder="Enter contact number" required>
+        </div>
+        <div class="form-group">
+            <label for="itemName">Requested Garment</label>
+            <input type="text" id="itemName" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="size">Preferred Size</label>
+            <select id="size" class="form-control" required>
+                <option value="">Select Size</option>
+                <option value="S">Small (S)</option>
+                <option value="M">Medium (M)</option>
+                <option value="L">Large (L)</option>
+                <option value="XL">Extra Large (XL)</option>
+                <option value="XXL">XXL</option>
+            </select>
+        </div>
+        <button type="submit" class="submit-btn">Save Customer Order</button>
+    </form>
+
+    <h2 style="text-align:left; margin-bottom:15px;">Customer Orders List</h2>
+    <button class="reset-btn" id="clearLogBtn">Reset Order Log</button>
+
+    <div class="table-responsive">
+        <table class="orders-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer Name</th>
+                    <th>Contact Number</th>
+                    <th>Requested Item</th>
+                    <th>Preferred Size</th>
+                    <th>Follow-up Status</th>
+                </tr>
+            </thead>
+            <tbody id="ordersTableBody"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+const form = document.getElementById("customerForm");
+const tbody = document.getElementById("ordersTableBody");
+const getOrders = () => JSON.parse(localStorage.getItem("customerOrders") || "[]");
+
+// Auto-fill garment name from the catalog link (?item=...)
+const item = new URLSearchParams(location.search).get("item");
+if (item) document.getElementById("itemName").value = item;
+
+// Show all saved orders in the table
+function loadOrders() {
+    tbody.innerHTML = "";
+    getOrders().forEach(o => {
+        const row = tbody.insertRow();
+        [o.id, o.customerName, o.contact, o.itemName, o.size].forEach(v => row.insertCell().textContent = v);
+        row.insertCell().innerHTML = '<span class="status-badge">Pending Follow-up</span>';
+    });
+}
+
+// Save a new order
+form.addEventListener("submit", e => {
+    e.preventDefault();
+    const orders = getOrders();
+    orders.push({
+        id: "#BO-" + (1001 + orders.length),
+        customerName: customerName.value.trim(),
+        contact: contact.value.trim(),
+        itemName: itemName.value.trim(),
+        size: size.value
+    });
+    localStorage.setItem("customerOrders", JSON.stringify(orders));
+    alert("Customer order saved successfully!");
+    form.reset();
+    loadOrders();
+});
+
+// Clear all orders
+document.getElementById("clearLogBtn").onclick = () => {
+    if (confirm("Are you sure you want to clear all customer orders?")) {
+        localStorage.removeItem("customerOrders");
+        loadOrders();
+    }
+};
+
+loadOrders();
+</script>
+
+</body>
+</html>

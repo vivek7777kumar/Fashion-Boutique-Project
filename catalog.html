@@ -1,0 +1,151 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boutique Catalog - Collection Management</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        .catalog-header { margin-bottom: 30px; }
+        .catalog-header h2 { color: #2c3e50; font-size: 28px; margin-bottom: 10px; }
+        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; padding: 10px; }
+        .garment-card { background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; display: flex; flex-direction: column; border: 1px solid #eaeaea; }
+        .garment-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .image-frame { width: 100%; height: 250px; background-color: #f9f9f9; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #f0f0f0; }
+        .image-frame img { max-width: 100%; max-height: 100%; object-fit: contain; padding: 15px; }
+        .card-details { padding: 20px; text-align: left; flex-grow: 1; }
+        .card-details h3 { font-size: 20px; color: #2c3e50; margin-bottom: 10px; }
+        .item-info { font-size: 14px; color: #555; margin-bottom: 6px; }
+        .item-info strong { color: #2c3e50; }
+        .price-tag { font-size: 18px; color: #e74c3c; font-weight: bold; margin-top: 12px; display: block; }
+
+        /* two buttons at the bottom of the card: Interest + Delete */
+        .card-buttons { display: flex; }
+        .interest-btn { flex: 1; text-align: center; background-color: #2c3e50; color: #ffffff; text-decoration: none; padding: 12px 0; font-weight: 600; font-size: 15px; border-top: 1px solid #eee; }
+        .interest-btn:hover { background-color: #e74c3c; }
+        .delete-btn { background-color: #7f8c8d; color: #ffffff; border: none; padding: 12px 18px; font-weight: 600; font-size: 15px; cursor: pointer; }
+        .delete-btn:hover { background-color: #c0392b; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html">Home</a>
+        <a href="catalog.html">View Catalog</a>
+        <a href="add-garment.html">Add New Garment</a>
+        <a href="customer-interest.html">Customer Orders</a>
+    </nav>
+
+    <div class="container">
+        <div class="catalog-header">
+            <h2>Current Boutique Catalog</h2>
+            <p>Browse through the active seasonal apparel collection and current design stock metrics.</p>
+        </div>
+
+        <div class="catalog-grid">
+            <!-- Garment Card 1 (Default) -->
+            <div class="garment-card" data-name="Casual Red T-Shirt">
+                <div class="image-frame"><img src="red tshirt.jpg" alt="Casual Red T-Shirt"></div>
+                <div class="card-details">
+                    <h3>Casual Red T-Shirt</h3>
+                    <div class="item-info"><strong>Sizes Available:</strong> S, M, L, XL</div>
+                    <div class="item-info"><strong>Fabric Type:</strong> 100% Premium Cotton</div>
+                    <div class="item-info"><strong>Stock Status:</strong> <span style="color:#24e10b; font-weight:bold;">In Stock</span> (6 units)</div>
+                    <span class="price-tag">₹799</span>
+                </div>
+                <div class="card-buttons">
+                    <a href="customer-interest.html?item=Casual Red T-Shirt" class="interest-btn">Log Customer Interest</a>
+                    <!-- data-source="default" means this card is written in HTML -->
+                    <button class="delete-btn" data-source="default" data-name="Casual Red T-Shirt">Delete</button>
+                </div>
+            </div>
+
+            <!-- Garment Card 2 (Default) -->
+            <div class="garment-card" data-name="Classic Denim Shirt">
+                <div class="image-frame"><img src="blue shirt.jpg" alt="Classic Denim Shirt"></div>
+                <div class="card-details">
+                    <h3>Classic Denim Shirt</h3>
+                    <div class="item-info"><strong>Sizes Available:</strong> M, L, XXL</div>
+                    <div class="item-info"><strong>Fabric Type:</strong> Lightweight Denim</div>
+                    <div class="item-info"><strong>Stock Status:</strong> <span style="color:#e74c3c; font-weight:bold;">Low Stock</span> (8 units)</div>
+                    <span class="price-tag">₹999</span>
+                </div>
+                <div class="card-buttons">
+                    <a href="customer-interest.html?item=Classic Denim Shirt" class="interest-btn">Log Customer Interest</a>
+                    <button class="delete-btn" data-source="default" data-name="Classic Denim Shirt">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT RUNS AT BOTTOM: shows saved garments and handles the Delete button -->
+    <script>
+        const catalogGrid = document.querySelector('.catalog-grid');
+
+        // garments added from the Add Garment form
+        const localGarments = JSON.parse(localStorage.getItem('myGarments')) || [];
+
+        // names of default (HTML) cards that the owner deleted
+        const hiddenDefaults = JSON.parse(localStorage.getItem('hiddenDefaults')) || [];
+
+        // 1. Remove the default cards that were deleted earlier
+        document.querySelectorAll('.garment-card[data-name]').forEach(function(card) {
+            if (hiddenDefaults.includes(card.dataset.name)) {
+                card.remove();
+            }
+        });
+
+        // 2. Show the garments saved in localStorage
+        localGarments.forEach(function(item, index) {
+
+            // 10 or less units = Low Stock (red), more than 10 = In Stock (green)
+            let stockText = '<span style="color:#24e10b; font-weight:bold;">In Stock</span>';
+            if (Number(item.stock) <= 10) {
+                stockText = '<span style="color:#e74c3c; font-weight:bold;">Low Stock</span>';
+            }
+
+            const cardHtml = `
+                <div class="garment-card">
+                    <div class="image-frame">
+                        <img src="${item.image}" alt="${item.name}">
+                    </div>
+                    <div class="card-details">
+                        <h3>${item.name}</h3>
+                        <div class="item-info"><strong>Sizes Available:</strong> ${item.sizes}</div>
+                        <div class="item-info"><strong>Fabric Type:</strong> ${item.fabric}</div>
+                        <div class="item-info"><strong>Stock Status:</strong> ${stockText} (${item.stock} units)</div>
+                        <span class="price-tag">₹${item.price}</span>
+                    </div>
+                    <div class="card-buttons">
+                        <a href="customer-interest.html?item=${encodeURIComponent(item.name)}" class="interest-btn">Log Customer Interest</a>
+                        <!-- data-index tells us which saved garment to delete -->
+                        <button class="delete-btn" data-source="saved" data-index="${index}">Delete</button>
+                    </div>
+                </div>
+            `;
+            catalogGrid.innerHTML += cardHtml;
+        });
+
+        // 3. When any Delete button is clicked
+        catalogGrid.addEventListener('click', function(event) {
+            const btn = event.target.closest('.delete-btn');
+            if (!btn) return;   // click was not on a Delete button
+
+            if (!confirm("Do you want to delete this garment?")) return;
+
+            if (btn.dataset.source === "saved") {
+                // remove from the saved list and update localStorage
+                localGarments.splice(Number(btn.dataset.index), 1);
+                localStorage.setItem('myGarments', JSON.stringify(localGarments));
+            } else {
+                // default card: remember its name so it stays hidden
+                hiddenDefaults.push(btn.dataset.name);
+                localStorage.setItem('hiddenDefaults', JSON.stringify(hiddenDefaults));
+            }
+
+            location.reload();   // reload the page to show the updated catalog
+        });
+    </script>
+</body>
+</html>
